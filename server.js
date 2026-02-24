@@ -61,7 +61,42 @@ app.post('/api/generate-roadmap', lim, async (req, res) => {
   try {
     const text = await chat(apiKey, [
       { role:'system', content:'Expert curriculum designer. Return ONLY valid JSON.' },
-      { role:'user', content:`Create a detailed learning roadmap.\nTOPIC: ${goalTitle}\nDURATION: ${durationMonths} months | SKILL: ${skillLevel}/5 | HOURS/DAY: ${dailyHours} | DEPTH: ${targetDepth}\n\nJSON format (return this exact structure):\n{\n  \"goal_summary\": \"2-3 sentence description\",\n  \"total_estimated_hours\": 120,\n  \"key_outcomes\": [\"outcome1\",\"outcome2\",\"outcome3\",\"outcome4\"],\n  \"prerequisites\": [\"prereq1\",\"prereq2\"],\n  \"modules\": [\n    {\n      \"id\": \"m1\",\n      \"title\": \"Module Title\",\n      \"difficulty\": 4,\n      \"estimated_hours\": 20,\n      \"description\": \"What this covers\",\n      \"weeks\": [\n        {\n          \"week_number\": 1,\n          \"focus\": \"Week focus\",\n          \"daily_tasks\": [\n            {\n              \"day\": 1,\n              \"topic\": \"Specific topic\",\n              \"estimated_minutes\": 60,\n              \"learning_objective\": \"Learner will be able to...\",\n              \"activity_type\": \"Reading\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}` }\n    ], 4000);
+      { role:'user', content:`Create a detailed learning roadmap.
+TOPIC: ${goalTitle}
+DURATION: ${durationMonths} months | SKILL: ${skillLevel}/5 | HOURS/DAY: ${dailyHours} | DEPTH: ${targetDepth}
+
+JSON format (return this exact structure):
+{
+  "goal_summary": "2-3 sentence description",
+  "total_estimated_hours": 120,
+  "key_outcomes": ["outcome1","outcome2","outcome3","outcome4"],
+  "prerequisites": ["prereq1","prereq2"],
+  "modules": [
+    {
+      "id": "m1",
+      "title": "Module Title",
+      "difficulty": 4,
+      "estimated_hours": 20,
+      "description": "What this covers",
+      "weeks": [
+        {
+          "week_number": 1,
+          "focus": "Week focus",
+          "daily_tasks": [
+            {
+              "day": 1,
+              "topic": "Specific topic",
+              "estimated_minutes": 60,
+              "learning_objective": "Learner will be able to...",
+              "activity_type": "Reading"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}` }
+    ], 4000);
     res.json({ success: true, roadmap: parseJ(text) });
   } catch(e) { const r = err(e); res.status(r.code).json({ error: r.msg }); }
 });
@@ -72,7 +107,35 @@ app.post('/api/chapter', lim, async (req, res) => {
   try {
     const content = await chat(apiKey, [
       { role:'system', content:'You are a world-class professor and textbook author. Write engaging, accurate, comprehensive lessons.' },
-      { role:'user', content:`Write a complete lesson chapter on: \"${topic}\"\nCourse: ${goalTitle} | Module: ${moduleTitle} | Difficulty: ${difficulty}/10 | Student level: ${skillLevel}/5\n\nLearning objective: ${objective}\n\nStructure your lesson with these sections:\n## 🎯 What You'll Learn\nBrief overview of this topic and why it matters in the real world.\n\n## 📖 Core Concepts\nExplain the fundamental ideas clearly. Start simple, build complexity. Use analogies.\n\n## 🔢 Formulas & Mathematics\nAll relevant formulas. Explain every variable. Show derivations where helpful.\n\n## 💡 Worked Example\nA realistic, detailed example. Show ALL steps. Use real numbers.\n\n## 🌍 Real World Application\nHow is this used in practice? Industry examples, case studies.\n\n## ⚠️ Common Mistakes & Misconceptions\nWhat do learners typically get wrong? Exam traps.\n\n## 🔗 Connections\nHow does this connect to other concepts in the course?\n\nWrite at least 600 words. Be thorough, accurate, and engaging. Use **bold** for key terms, \`backticks\` for formulas/code, and - for bullet points.` }\n    ], 2000);
+      { role:'user', content:`Write a complete lesson chapter on: "${topic}"
+Course: ${goalTitle} | Module: ${moduleTitle} | Difficulty: ${difficulty}/10 | Student level: ${skillLevel}/5
+
+Learning objective: ${objective}
+
+Structure your lesson with these sections:
+## 🎯 What You'll Learn
+Brief overview of this topic and why it matters in the real world.
+
+## 📖 Core Concepts
+Explain the fundamental ideas clearly. Start simple, build complexity. Use analogies.
+
+## 🔢 Formulas & Mathematics
+All relevant formulas. Explain every variable. Show derivations where helpful.
+
+## 💡 Worked Example
+A realistic, detailed example. Show ALL steps. Use real numbers.
+
+## 🌍 Real World Application
+How is this used in practice? Industry examples, case studies.
+
+## ⚠️ Common Mistakes & Misconceptions
+What do learners typically get wrong? Exam traps.
+
+## 🔗 Connections
+How does this connect to other concepts in the course?
+
+Write at least 600 words. Be thorough, accurate, and engaging. Use **bold** for key terms, \`backticks\` for formulas/code, and - for bullet points.` }
+    ], 2000);
     res.json({ success: true, content });
   } catch(e) { const r = err(e); res.status(r.code).json({ error: r.msg }); }
 });
@@ -83,7 +146,19 @@ app.post('/api/quiz', lim, async (req, res) => {
   try {
     const text = await chat(apiKey, [
       { role:'system', content:'Expert educator. Return ONLY a valid JSON array.' },
-      { role:'user', content:`Generate ${count} practice questions on: \"${topic}\"\nCourse: ${goalTitle} | Module: ${moduleTitle} | Difficulty: ${difficulty}/10\n\nCreate questions at EXACTLY these levels (in order):\n1. Basic recall\n2. Understanding  \n3. Application/Calculation\n4. Analysis\n5. Expert/Synthesis\n\nReturn JSON array:\n[{\"id\":1,\"level\":\"Basic\",\"question\":\"...\",\"options\":[\"A) ...\",\"B) ...\",\"C) ...\",\"D) ...\"],\"correct\":\"A\",\"explanation\":\"detailed why correct + why others wrong\",\"formula\":\"relevant formula or null\",\"hint\":\"small hint without giving answer\"}]` }\n    ], 2000);
+      { role:'user', content:`Generate ${count} practice questions on: "${topic}"
+Course: ${goalTitle} | Module: ${moduleTitle} | Difficulty: ${difficulty}/10
+
+Create questions at EXACTLY these levels (in order):
+1. Basic recall
+2. Understanding  
+3. Application/Calculation
+4. Analysis
+5. Expert/Synthesis
+
+Return JSON array:
+[{"id":1,"level":"Basic","question":"...","options":["A) ...","B) ...","C) ...","D) ..."],"correct":"A","explanation":"detailed why correct + why others wrong","formula":"relevant formula or null","hint":"small hint without giving answer"}]` }
+    ], 2000);
     res.json({ success: true, questions: parseJ(text) });
   } catch(e) { const r = err(e); res.status(r.code).json({ error: r.msg }); }
 });
@@ -99,8 +174,10 @@ app.post('/api/tutor', lim, async (req, res) => {
   };
   try {
     const msgs = [
-      { role:'system', content:
-`You are an expert tutor for: \"${topic}\" in course \"${goalTitle}\" (module: ${moduleTitle}).\n${modes[mode] || modes.explain}\n${chapterSummary ? `Chapter context: ${chapterSummary.slice(0,400)}` : ''}\nKeep responses focused, max 250 words. Use **bold**, \`formulas\`, and bullet points.` },
+      { role:'system', content:`You are an expert tutor for: "${topic}" in course "${goalTitle}" (module: ${moduleTitle}).
+${modes[mode] || modes.explain}
+${chapterSummary ? `Chapter context: ${chapterSummary.slice(0,400)}` : ''}
+Keep responses focused, max 250 words. Use **bold**, \`formulas\`, and bullet points.` },
       ...(history||[]).slice(-6),
       { role:'user', content: message }
     ];
@@ -123,7 +200,10 @@ app.post('/api/forecast', lim, async (req, res) => {
   try {
     const text = await chat(apiKey, [
       { role:'system', content:'Learning analytics expert. Return JSON only.' },
-      { role:'user', content:`Analyze: ${goalTitle}\n${completedTasks}/${totalTasks} tasks | ${daysElapsed}/${totalDays} days | streak: ${streak} | consistency: ${consistency}% | risk: ${riskLevel}\nReturn: {\"recommendation\":\"2-3 specific actions\",\"pattern\":\"1 sentence\",\"hours_needed\":${(required*1.5).toFixed(1)},\"today\":\"single priority action\",\"motivation\":\"1 encouraging sentence\"}` }\n    ], 300);
+      { role:'user', content:`Analyze: ${goalTitle}
+${completedTasks}/${totalTasks} tasks | ${daysElapsed}/${totalDays} days | streak: ${streak} | consistency: ${consistency}% | risk: ${riskLevel}
+Return: {"recommendation":"2-3 specific actions","pattern":"1 sentence","hours_needed":${(required*1.5).toFixed(1)},"today":"single priority action","motivation":"1 encouraging sentence"}` }
+    ], 300);
     const ai = parseJ(text);
     res.json({ success: true, forecast: { riskLevel, confidence: Math.round(conf), projDate: projDate.toISOString().split('T')[0], ...ai } });
   } catch(e) {
@@ -147,7 +227,7 @@ app.post('/api/explain', lim, async (req, res) => {
   try {
     const reply = await chat(apiKey, [
       { role:'system', content:`You are a master educator. ${styles[style] || styles.feynman}` },
-      { role:'user', content:`Explain: \"${concept}\"${context ? `\nContext/prior knowledge: ${context}` : ''}\n\nBe engaging, memorable, and accurate. Min 300 words.` }
+      { role:'user', content:`Explain: "${concept}"${context ? `\nContext/prior knowledge: ${context}` : ''}\n\nBe engaging, memorable, and accurate. Min 300 words.` }
     ], 800);
     res.json({ success: true, reply });
   } catch(e) { const r = err(e); res.status(r.code).json({ error: r.msg }); }
@@ -159,7 +239,11 @@ app.post('/api/flashcards', lim, async (req, res) => {
   try {
     const text = await chat(apiKey, [
       { role:'system', content:'Flashcard creator. Return ONLY valid JSON array.' },
-      { role:'user', content:`Create ${count} flashcards for: \"${topic}\" in \"${goalTitle}\"\nCover: key terms, formulas, concepts, applications.\nJSON: [{\"front\":\"Question or term\",\"back\":\"Answer or definition\",\"type\":\"definition|formula|concept|application\",\"difficulty\":1}]\nVary difficulty 1-5. Make fronts specific, backs comprehensive but concise.` }\n    ], 1500);
+      { role:'user', content:`Create ${count} flashcards for: "${topic}" in "${goalTitle}"
+Cover: key terms, formulas, concepts, applications.
+JSON: [{"front":"Question or term","back":"Answer or definition","type":"definition|formula|concept|application","difficulty":1}]
+Vary difficulty 1-5. Make fronts specific, backs comprehensive but concise.` }
+    ], 1500);
     res.json({ success: true, cards: parseJ(text) });
   } catch(e) { const r = err(e); res.status(r.code).json({ error: r.msg }); }
 });
@@ -171,7 +255,8 @@ app.post('/api/weakness', lim, async (req, res) => {
     const data = modules.map(m => ({ title:m.title, completion:Math.round((m.completedHours/Math.max(m.estimatedHours,1))*100)+'%', rating:m.selfRating||'unrated', status:m.status, difficulty:m.difficulty }));
     const text = await chat(apiKey, [
       { role:'system', content:'Learning analytics expert. Return JSON only.' },
-      { role:'user', content:`Analyze: ${goalTitle}\n${JSON.stringify(data)}\nReturn: {\"weakest\":\"title\",\"why\":\"reason\",\"strongest\":\"title\",\"assessment\":\"2 sentences\",\"actions\":[{\"module\":\"title\",\"issue\":\"issue\",\"action\":\"this week action\",\"priority\":\"High\"}],\"topics\":[\"extra topic1\",\"extra topic2\"],\"strategy\":\"recommendation\"}` }\n    ], 600);
+      { role:'user', content:`Analyze: ${goalTitle}\n${JSON.stringify(data)}\nReturn: {"weakest":"title","why":"reason","strongest":"title","assessment":"2 sentences","actions":[{"module":"title","issue":"issue","action":"this week action","priority":"High"}],"topics":["extra topic1","extra topic2"],"strategy":"recommendation"}` }
+    ], 600);
     res.json({ success: true, analysis: parseJ(text) });
   } catch(e) { const r = err(e); res.status(r.code).json({ error: r.msg }); }
 });
@@ -181,7 +266,8 @@ app.post('/api/chat', lim, async (req, res) => {
   const { apiKey, message, goalContext, history } = req.body;
   try {
     const msgs = [
-      { role:'system', content:`You are an expert tutor and learning coach. Help with any subject — from quantum physics to cooking.${goalContext ? ` User is studying: ${goalContext}.` : ''}\nUse ## headers, **bold** terms, \`formulas\`, and - bullets. Max 350 words. Be direct and practical.` },
+      { role:'system', content:`You are an expert tutor and learning coach. Help with any subject — from quantum physics to cooking.${goalContext ? ` User is studying: ${goalContext}.` : ''}
+Use ## headers, **bold** terms, \`formulas\`, and - bullets. Max 350 words. Be direct and practical.` },
       ...(history||[]).slice(-8),
       { role:'user', content: message }
     ];
